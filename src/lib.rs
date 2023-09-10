@@ -144,6 +144,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn reflect_point_on_geodesic_with_geodesic() {
+        let a = Point2::new(0.517638147,0f32);
+        let b = Point2::new(-2.26266827E-8,0.517638147);
+        let geodesic = geodesic_passing_by_two_points(a, b);
+        assert_eq!(a,geodesic.reflect(a))
+    }
+
+    #[test]
     fn reflect_point_on_circle() {
         let point_on_circle = Point2::new(0f32, 1f32);
         let result = Circle::new(Point2::new(0f32, 0f32), 1f32).reflect(point_on_circle);
