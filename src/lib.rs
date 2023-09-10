@@ -1,13 +1,15 @@
 use nannou::prelude::*;
+use core::fmt::Debug;
 
 pub type Shape = Vec<Point2>;
 const MAX_ITERATION: u16 = 3;
 
-pub trait Reflect {
+pub trait Reflect : std::fmt::Debug {
     fn reflect(&self, point: Point2) -> Point2;
     fn draw(&self, draw: &Draw);
 }
 
+#[derive(Debug)]
 struct Circle {
     center: Point2,
     radius: f32,
@@ -47,6 +49,7 @@ impl Reflect for Circle {
     }
 }
 
+#[derive(Debug)]
 struct Line {
     start: Point2,
     end: Point2,
