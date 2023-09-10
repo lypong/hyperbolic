@@ -22,9 +22,19 @@ impl Circle {
 
 impl Reflect for Circle {
     fn reflect(&self, point: Point2) -> Point2 {
-        let direction = Vec2::new(point.x - self.center.x, point.y - self.center.y).normalize();
-        // dist(OA)*dist(OI) = r*r
-        direction * (self.radius.pow(2f32) / self.center.distance(point))
+            // La distance entre le centre et un point multipliée par la distance entre le centre et l'inverse du point est égale au carré du rayon. (|OI|*|OA|=r^2)
+            // Le centre, le point, et son inverse son colinéaires
+            let distance_of_inverted_point = self.radius.pow(2) / point.distance(self.center);
+            if distance_of_inverted_point == self.radius{
+                return point;
+            }
+            // On crée un vecteur colinéaire avec le centre, le point et son inverse, puis on le normalise et finalement retourne la distance entre le centre et l'inverse multipliée par le vecteur normal, donc l'inverse.
+            let normalized_vec =
+                Point2::new(point.x - self.center.x, point.y - self.center.y).normalize_or_zero();
+            let y =  normalized_vec.y*distance_of_inverted_point;
+            let f = self.center.y+y;
+            Point2::new(self.center.x+normalized_vec.x*distance_of_inverted_point,f)
+            //self.center + normalized_vec * distance_of_inverted_point
     }
     fn draw(&self, draw: &Draw) {
         draw.ellipse()
