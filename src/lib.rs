@@ -50,18 +50,30 @@ impl Reflect for Circle {
 struct Line {
     start: Point2,
     end: Point2,
+    direction: Vec2
 }
 
 impl Line {
     pub fn new(start: Point2, end: Point2) -> Self {
         assert_ne!(start, end);
-        Line { start, end }
+        let direction = end-start;
+        Line { start, end, direction}
+    }
+    pub fn orthogonal_line_passing_by_point(&self,point: Point2) -> Self{
+        let orthogonal_direction = Vec2::new(-self.direction.y,self.direction.x);
+        Line { start: point, end: point+orthogonal_direction, direction: orthogonal_direction }
+    }
+    pub fn intersect(&self,line : Self) -> Point2{
+        let factor = (line.direction.x*(self.start.y-line.start.y)+line.direction.y*(line.start.x-self.start.x))/(line.direction.y*self.direction.x-line.direction.x*self.direction.y);
+        Point2::new(self.start.x+factor*self.direction.x,self.start.y+factor*self.direction.y)
     }
 }
 
 impl Reflect for Line {
     fn reflect(&self, point: Point2) -> Point2 {
-        todo!()
+        let projection = self.orthogonal_line_passing_by_point(point).intersect(*self);
+        let direction = projection-point;
+        Point2::new(point.x+direction.x*2f32, point.y+direction.y*2f32)
     }
     fn draw(&self, draw: &Draw) {
         draw.line().start(self.start).end(self.end);
