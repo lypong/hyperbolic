@@ -37,7 +37,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
         for i in 0..shape.len() {
             let a = shape[i];
             let b = shape[(i + 1) % shape.len()];
-            hyperbolic::geodesic_passing_by_two_points(a, b).draw(&draw);
+            if let Some(geodesic) = hyperbolic::geodesic_passing_by_two_points(a, b){
+                geodesic.draw(&draw);
+            }
         }
     }
 

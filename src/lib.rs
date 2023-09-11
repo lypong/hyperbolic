@@ -16,9 +16,11 @@ struct Circle {
 }
 
 impl Circle {
-    pub fn new(center: Point2, radius: f32) -> Self {
-        assert!(radius >= 0f32);
-        Circle { center, radius }
+    pub fn new(center: Point2, radius: f32) -> Option<Self> {
+        if radius < 0f32 {
+            return None;
+        }
+        Some(Circle { center, radius })
     }
 }
 
@@ -54,21 +56,23 @@ struct Line {
 }
 
 impl Line {
-    pub fn new(start: Point2, end: Point2) -> Self {
-        assert_ne!(start, end);
+    pub fn new(start: Point2, end: Point2) -> Option<Self> {
+        if start == end {
+            return None;
+        }
         let direction = end-start;
-        Line { start, end, direction}
+        Some(Line { start, end, direction})
     }
     pub fn orthogonal_line_passing_by_point(&self,point: Point2) -> Self{
         let orthogonal_direction = Vec2::new(-self.direction.y,self.direction.x);
         Line { start: point, end: point+orthogonal_direction, direction: orthogonal_direction }
     }
-    pub fn intersect(&self,line : Self) -> Result<Point2,()>{
+    pub fn intersect(&self,line : Self) -> Option<Point2>{
         let factor = (line.direction.x*(self.start.y-line.start.y)+line.direction.y*(line.start.x-self.start.x))/(line.direction.y*self.direction.x-line.direction.x*self.direction.y);
         if !factor.is_finite(){
-            return Err(());
+            return None;
         }
-        Ok(Point2::new(self.start.x+factor*self.direction.x,self.start.y+factor*self.direction.y))
+        Some(Point2::new(self.start.x+factor*self.direction.x,self.start.y+factor*self.direction.y))
     }
     pub fn projection(&self,point: Point2) -> Point2{
         let orthogonal = self.orthogonal_line_passing_by_point(point);
@@ -96,11 +100,15 @@ fn euclidian_distance_from_center_to_vertex(p: u16, q: u16) -> f32 {
     .sqrt()*/
 }
 
-pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Box<dyn Reflect> {
+pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Option<Box<dyn Reflect>> {
     let divisor = u.x * v.y - u.y * v.x;
     if divisor == 0f32 {
         // would tend to infinity -> points are perfectly opposed or are equal
-        return Box::new(Line::new(u, v)); // will assert if u==v
+        return if let Some(line) = Line::new(u, v){
+            Some(Box::new(line))
+        } else {
+            None
+        };
     }
     // circle equation -> x*x + ax + y*y + by + 1 = 0
     let factor_of_x =
@@ -113,7 +121,11 @@ pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Box<dyn Reflect> 
     let center = Point2::new(-factor_of_x / 2f32, -factor_of_y / 2f32);
     let radius = center.distance(u)/*(-1f32 + (factor_of_x / 2f32).pow(2f32) + (factor_of_y / 2f32).pow(2f32)).sqrt()*/;
     assert_ne!(radius, f32::NAN);
-    Box::new(Circle::new(center, radius))
+    if let Some(circle) = Circle::new(center, radius){
+        return Some(Box::new(circle));
+    }
+    None
+    
 }
 
 fn tile(
@@ -127,17 +139,18 @@ fn tile(
         for i in 0..current_shape.len() {
             let a = current_shape[i];
             let b = current_shape[(i + 1) % current_shape.len()];
-            let geodesic = geodesic_passing_by_two_points(a, b);
-            let next_center = geodesic.reflect(current_center);
-            if !centers.contains(&next_center) {
-                centers.push(next_center);
-                let mut next_shape = vec![];
-                for j in 0..current_shape.len() {
-                    let point = current_shape[j];
-                    next_shape.push(geodesic.reflect(point));
+            if let Some(geodesic) = geodesic_passing_by_two_points(a, b){
+                let next_center = geodesic.reflect(current_center);
+                if !centers.contains(&next_center) {
+                    centers.push(next_center);
+                    let mut next_shape = vec![];
+                    for j in 0..current_shape.len() {
+                        let point = current_shape[j];
+                        next_shape.push(geodesic.reflect(point));
+                    }
+                    tile(&next_shape, next_center, shapes, centers, iteration + 1);
+                    shapes.push(next_shape);
                 }
-                tile(&next_shape, next_center, shapes, centers, iteration + 1);
-                shapes.push(next_shape);
             }
         }
     }
@@ -167,27 +180,27 @@ mod tests {
         let a = Point2::new(0.517638147,0f32);
         let b = Point2::new(-2.26266827E-8,0.517638147);
         let geodesic = geodesic_passing_by_two_points(a, b);
-        assert_eq!(a,geodesic.reflect(a))
+        assert_eq!(a,geodesic.unwrap().reflect(a))
     }
 
     #[test]
     fn reflect_point_on_circle() {
         let point_on_circle = Point2::new(0f32, 1f32);
-        let result = Circle::new(Point2::new(0f32, 0f32), 1f32).reflect(point_on_circle);
+        let result = Circle::new(Point2::new(0f32, 0f32), 1f32).unwrap().reflect(point_on_circle);
         assert_eq!(result, point_on_circle);
     }
     #[test]
     fn reflect_point_outside_of_circle() {
         let point_outside_of_circle = Point2::new(2f32, 0f32);
         let radius = 1f32;
-        let result = Circle::new(Point2::new(0f32, 0f32), radius).reflect(point_outside_of_circle);
+        let result = Circle::new(Point2::new(0f32, 0f32), radius).unwrap().reflect(point_outside_of_circle);
         assert_eq!(result, Point2::new(0.5, 0f32));
     }
     #[test]
     fn reflect_point_inside_of_circle() {
         let point_inside_of_circle = Point2::new(-0.5, 0f32);
         let radius = 1f32;
-        let result = Circle::new(Point2::new(0f32, 0f32), radius).reflect(point_inside_of_circle);
+        let result = Circle::new(Point2::new(0f32, 0f32), radius).unwrap().reflect(point_inside_of_circle);
         assert_eq!(result, Point2::new(-2f32, 0f32));
     }
 }
