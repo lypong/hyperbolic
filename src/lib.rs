@@ -1,95 +1,14 @@
+mod line;
+mod circle;
+mod reflect;
+
 use nannou::prelude::*;
-use core::fmt::Debug;
+
+use crate::circle::Circle;
+use crate::line::Line;
 
 pub type Shape = Vec<Point2>;
 const MAX_ITERATION: u16 = 3;
-
-pub trait Reflect : std::fmt::Debug {
-    fn reflect(&self, point: Point2) -> Point2;
-    fn draw(&self, draw: &Draw);
-}
-
-#[derive(Debug)]
-struct Circle {
-    center: Point2,
-    radius: f32,
-}
-
-impl Circle {
-    pub fn new(center: Point2, radius: f32) -> Option<Self> {
-        if radius < 0f32 {
-            return None;
-        }
-        Some(Circle { center, radius })
-    }
-}
-
-impl Reflect for Circle {
-    fn reflect(&self, point: Point2) -> Point2 {
-        // La distance entre le centre et un point multipliée par la distance entre le centre et l'inverse du point est égale au carré du rayon. (|OI|*|OA|=r^2)
-        // Le centre, le point, et son inverse son colinéaires
-        let distance_of_inverted_point = self.radius.pow(2) / point.distance(self.center);
-        if distance_of_inverted_point == self.radius{
-            return point;
-        }
-        // On crée un vecteur colinéaire avec le centre, le point et son inverse, puis on le normalise et finalement retourne la distance entre le centre et l'inverse multipliée par le vecteur normal, donc l'inverse.
-        let normalized_vec =
-            Point2::new(point.x - self.center.x, point.y - self.center.y).normalize_or_zero();
-        self.center + normalized_vec * distance_of_inverted_point
-    }
-    fn draw(&self, draw: &Draw) {
-        draw.ellipse()
-            .resolution(64f32)
-            .no_fill()
-            .stroke(WHITE)
-            .stroke_weight(0.005)
-            .xy(self.center)
-            .radius(self.radius);
-    }
-}
-
-#[derive(Debug)]
-struct Line {
-    start: Point2,
-    end: Point2,
-    direction: Vec2
-}
-
-impl Line {
-    pub fn new(start: Point2, end: Point2) -> Option<Self> {
-        if start == end {
-            return None;
-        }
-        let direction = end-start;
-        Some(Line { start, end, direction})
-    }
-    pub fn orthogonal_line_passing_by_point(&self,point: Point2) -> Self{
-        let orthogonal_direction = Vec2::new(-self.direction.y,self.direction.x);
-        Line { start: point, end: point+orthogonal_direction, direction: orthogonal_direction }
-    }
-    pub fn intersect(&self,line : Self) -> Option<Point2>{
-        let factor = (line.direction.x*(self.start.y-line.start.y)+line.direction.y*(line.start.x-self.start.x))/(line.direction.y*self.direction.x-line.direction.x*self.direction.y);
-        if !factor.is_finite(){
-            return None;
-        }
-        Some(Point2::new(self.start.x+factor*self.direction.x,self.start.y+factor*self.direction.y))
-    }
-    pub fn projection(&self,point: Point2) -> Point2{
-        let orthogonal = self.orthogonal_line_passing_by_point(point);
-        self.intersect(orthogonal).unwrap()
-    }
-}
-
-impl Reflect for Line {
-    fn reflect(&self, point: Point2) -> Point2 {
-        let projection = self.projection(point);
-        let direction = projection-point;
-        Point2::new(point.x+direction.x*2f32, point.y+direction.y*2f32)
-    }
-    fn draw(&self, draw: &Draw) {
-        draw.line().start(self.start).end(self.end);
-    }
-}
 
 fn euclidian_distance_from_center_to_vertex(p: u16, q: u16) -> f32 {
     let q: f32 = q.into();
@@ -100,7 +19,7 @@ fn euclidian_distance_from_center_to_vertex(p: u16, q: u16) -> f32 {
     .sqrt()*/
 }
 
-pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Option<Box<dyn Reflect>> {
+pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Option<Box<dyn reflect::Reflect>> {
     let divisor = u.x * v.y - u.y * v.x;
     if divisor == 0f32 {
         // would tend to infinity -> points are perfectly opposed or are equal
@@ -173,6 +92,8 @@ pub fn init_tile(p: u16, q: u16) -> Vec<Shape> {
 
 #[cfg(test)]
 mod tests {
+    use crate::reflect::Reflect;
+
     use super::*;
 
     #[test]
