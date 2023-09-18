@@ -1,11 +1,14 @@
 mod line;
 mod circle;
 mod reflect;
+mod arc;
+mod angle;
 
 use nannou::prelude::*;
 
 use crate::circle::Circle;
 use crate::line::Line;
+use crate::arc::Arc;
 
 pub type Shape = Vec<Point2>;
 const MAX_ITERATION: u16 = 3;
@@ -41,7 +44,9 @@ pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Option<Box<dyn re
     let radius = center.distance(u)/*(-1f32 + (factor_of_x / 2f32).pow(2f32) + (factor_of_y / 2f32).pow(2f32)).sqrt()*/;
     assert_ne!(radius, f32::NAN);
     if let Some(circle) = Circle::new(center, radius){
-        return Some(Box::new(circle));
+        if let Some(arc) = Arc::new(u, v, circle){
+            return Some(Box::new(arc));
+        }
     }
     None
     

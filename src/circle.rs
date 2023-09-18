@@ -5,8 +5,8 @@ use crate::reflect::*;
 
 #[derive(Debug)]
 pub struct Circle {
-    center: Point2,
-    radius: f32,
+    pub center: Point2,
+    pub radius: f32,
 }
 
 impl Circle {
