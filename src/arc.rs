@@ -23,12 +23,14 @@ impl Arc {
     fn points_of_arc(&self,resolution : f32) -> Option<Vec<Point2>> {
         let mut res = vec![];
         let angle = angle_between(self.start, self.circle.center, self.end);
+        if angle == 0f32 {
+            res.push(self.start);
+            res.push(self.end);
+            return Some(res);
+        }
         let step = angle / resolution * -1f32;
         let start = (self.start - self.circle.center).angle_between(Vec2::new(0f32, 1f32));
         let end = start - angle;
-        if start == end {
-            return None;
-        }
         let mut current = start;
     
         if angle < 0f32 {
