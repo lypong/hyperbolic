@@ -42,6 +42,11 @@ pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Option<Box<dyn re
     let center = Point2::new(-factor_of_x / 2f32, -factor_of_y / 2f32);
     let radius = center.distance(u)/*(-1f32 + (factor_of_x / 2f32).pow(2f32) + (factor_of_y / 2f32).pow(2f32)).sqrt()*/;
     assert_ne!(radius, f32::NAN);
+    if radius > 10f32 {
+        return if let Some(line) = Line::new(u, v){
+            Some(Box::new(line))
+        } else {None};
+    }
     if let Some(circle) = Circle::new(center, radius){
         if let Some(arc) = Arc::new(u, v, circle){
             return Some(Box::new(arc));
