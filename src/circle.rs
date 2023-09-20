@@ -35,7 +35,7 @@ impl Reflect for Circle {
         draw.ellipse()
             .resolution(64f32)
             .no_fill()
-            .stroke(WHITE)
+            .stroke(BLACK)
             .stroke_weight(0.005)
             .xy(self.center)
             .radius(self.radius);

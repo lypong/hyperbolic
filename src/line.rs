@@ -42,6 +42,6 @@ impl Reflect for Line {
         Point2::new(point.x+direction.x*2f32, point.y+direction.y*2f32)
     }
     fn draw(&self, draw: &Draw) {
-        draw.line().start(self.start).end(self.end).color(WHITE).weight(0.005);
+        draw.line().start(self.start).end(self.end).color(BLACK).weight(0.005);
     }
 }

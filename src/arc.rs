@@ -55,7 +55,7 @@ impl Reflect for Arc {
             .stroke()
             .tolerance(0.001)
             .weight(0.005)
-            .color(WHITE)
+            .color(BLACK)
             .events(path.iter());
     
     }

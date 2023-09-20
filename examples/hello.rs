@@ -9,8 +9,7 @@ fn view(app: &App, frame: Frame) {
     // Begin drawing
     let draw = app.draw().scale(200f32);
 
-    // Clear the background to blue.
-    draw.background().color(BLACK);
+    draw.background().color(WHITE);
 
     for shape in hyperbolic::init_tile(4, 6) {
         for i in 0..shape.len() {
