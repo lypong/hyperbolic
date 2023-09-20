@@ -1,10 +1,26 @@
 use nannou::prelude::*;
-
-use crate::angle::angle_between;
 use crate::circle::Circle;
 use crate::reflect::Reflect;
 
-const RESOLUTION : f32 = 32f32;
+fn control_point(point: Point2, reference_point: Point2, center: Point2) -> Point2 {
+    let angle = (point - center)
+        .angle_between(reference_point - center)
+        .abs();
+    let l = 4f32 * (angle / 4f32).tan() / 3f32;
+    let director_tan = Vec2::new(point.y - center.y, center.x - point.x);
+    let potential_control_point1 =
+        Vec2::new(point.x + director_tan.x * l, point.y + director_tan.y * l);
+    let potential_control_point2 =
+        Vec2::new(point.x - director_tan.x * l, point.y - director_tan.y * l);
+
+    if potential_control_point1.distance_squared(reference_point)
+        < potential_control_point2.distance_squared(reference_point)
+    {
+        potential_control_point1
+    } else {
+        potential_control_point2
+    }
+}
 
 #[derive(Debug)]
 pub struct Arc{
@@ -20,34 +36,6 @@ impl Arc {
         }
         Some(Arc { start, end,circle })
     }
-    fn points_of_arc(&self,resolution : f32) -> Option<Vec<Point2>> {
-        let mut res = vec![];
-        let angle = angle_between(self.start, self.circle.center, self.end);
-        if angle == 0f32 {
-            res.push(self.start);
-            res.push(self.end);
-            return Some(res);
-        }
-        let step = angle / resolution * -1f32;
-        let start = (self.start - self.circle.center).angle_between(Vec2::new(0f32, 1f32));
-        let end = start - angle;
-        let mut current = start;
-    
-        if angle < 0f32 {
-            while current <= end {
-                current += step;
-                let p = Vec2::new(current.sin() * self.circle.radius, current.cos() * self.circle.radius) + self.circle.center;
-                res.push(p)
-            }
-        } else {
-            while current >= end {
-                current += step;
-                let p = Vec2::new(current.sin() * self.circle.radius, current.cos() * self.circle.radius) + self.circle.center;
-                res.push(p)
-            }
-        }
-        Some(res)
-    }
 }
 
 impl Reflect for Arc {
@@ -55,8 +43,20 @@ impl Reflect for Arc {
         self.circle.reflect(point)
     }
     fn draw(&self, draw: &Draw) {
-        if let Some(points) = self.points_of_arc(RESOLUTION){
-            draw.polyline().weight(0.005).color(WHITE).points(points);
-        }
+        let mut builder = nannou::geom::path::Builder::new().with_svg();
+        builder.move_to(self.start.to_array().into());
+        builder.cubic_bezier_to(
+            control_point(self.start, self.end, self.circle.center).to_array().into(),
+            control_point(self.end, self.start, self.circle.center).to_array().into(),
+            self.end.to_array().into(),
+        );
+        let path = builder.build();
+        draw.path()
+            .stroke()
+            .tolerance(0.001)
+            .weight(0.005)
+            .color(WHITE)
+            .events(path.iter());
+    
     }
 }
