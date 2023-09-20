@@ -2,7 +2,6 @@ mod line;
 mod circle;
 mod reflect;
 mod arc;
-mod angle;
 
 use nannou::prelude::*;
 
