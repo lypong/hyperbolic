@@ -46,8 +46,8 @@ impl Reflect for Arc {
         let mut builder = nannou::geom::path::Builder::new().with_svg();
         builder.move_to(self.start.to_array().into());
         builder.cubic_bezier_to(
-            control_point(self.start, self.end, self.circle.center).to_array().into(),
-            control_point(self.end, self.start, self.circle.center).to_array().into(),
+            control_point(self.start, self.end, self.circle.center()).to_array().into(),
+            control_point(self.end, self.start, self.circle.center()).to_array().into(),
             self.end.to_array().into(),
         );
         let path = builder.build();

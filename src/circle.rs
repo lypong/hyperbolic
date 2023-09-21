@@ -5,8 +5,8 @@ use crate::reflect::*;
 
 #[derive(Debug)]
 pub struct Circle {
-    pub center: Point2,
-    pub radius: f32,
+    center: Point2,
+    radius: f32,
 }
 
 impl Circle {
@@ -15,6 +15,12 @@ impl Circle {
             return None;
         }
         Some(Circle { center, radius })
+    }
+    pub fn center(&self) -> Point2 {
+        self.center
+    }
+    pub fn radius(&self) -> f32 {
+        self.radius
     }
 }
 
