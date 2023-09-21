@@ -2,6 +2,7 @@ mod line;
 mod circle;
 mod reflect;
 mod arc;
+pub mod tiling;
 
 use nannou::prelude::*;
 
@@ -10,9 +11,8 @@ use crate::line::Line;
 use crate::arc::Arc;
 
 pub type Shape = Vec<Point2>;
-const MAX_ITERATION: u16 = 3;
 
-fn euclidian_distance_from_center_to_vertex(p: u16, q: u16) -> f32 {
+fn euclidian_distance_from_center_to_vertex(p: u8, q: u8) -> f32 {
     let q: f32 = q.into();
     let p: f32 = p.into();
     (((PI / 2f32 - PI / q).tan() - (PI / p).tan()) / ((PI / 2f32 - PI / q).tan() + (PI / p).tan()))
@@ -54,49 +54,6 @@ pub fn geodesic_passing_by_two_points(u: Point2, v: Point2) -> Option<Box<dyn re
     }
     None
     
-}
-
-fn tile(
-    current_shape: &Shape,
-    current_center: Point2,
-    shapes: &mut Vec<Shape>,
-    centers: &mut Vec<Point2>,
-    iteration: u16,
-) {
-    if iteration < MAX_ITERATION {
-        for i in 0..current_shape.len() {
-            let a = current_shape[i];
-            let b = current_shape[(i + 1) % current_shape.len()];
-            if let Some(geodesic) = geodesic_passing_by_two_points(a, b){
-                let next_center = geodesic.reflect(current_center);
-                if !centers.contains(&next_center) {
-                    centers.push(next_center);
-                    let mut next_shape = vec![];
-                    for j in 0..current_shape.len() {
-                        let point = current_shape[j];
-                        next_shape.push(geodesic.reflect(point));
-                    }
-                    tile(&next_shape, next_center, shapes, centers, iteration + 1);
-                    shapes.push(next_shape);
-                }
-            }
-        }
-    }
-}
-
-pub fn init_tile(p: u16, q: u16) -> Vec<Shape> {
-    let radius = euclidian_distance_from_center_to_vertex(p, q);
-    let mut shape = vec![];
-    let mut angle = 0f32;
-    let p_as_f32: f32 = p.into();
-    for _ in 0..p {
-        shape.push(Point2::new(angle.cos() * radius, angle.sin() * radius));
-        angle += 2f32 * PI / p_as_f32;
-    }
-    let mut centers = vec![Point2::ZERO];
-    let mut shapes = vec![shape.clone()];
-    tile(&shape, Point2::ZERO, &mut shapes, &mut centers, 0);
-    shapes
 }
 
 #[cfg(test)]

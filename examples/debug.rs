@@ -1,5 +1,5 @@
 extern crate hyperbolic;
-use hyperbolic::Shape;
+use hyperbolic::tiling::Tiling;
 use nannou::prelude::*;
 
 fn main() {
@@ -10,12 +10,14 @@ fn main() {
 }
 
 struct Model {
-    shapes : Vec<Shape>,
+    tiling : Tiling,
     counter : u16
 }
 
 fn model(_app: &App) -> Model {
-    Model {shapes:hyperbolic::init_tile(4, 6),counter:0}
+    let mut tiling = Tiling::new(4, 6, 4);
+    tiling.compute();
+    Model {tiling,counter:0}
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
@@ -29,7 +31,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     // Clear the background to blue.
     draw.background().color(WHITE);
     let mut counter = 0;
-    for shape in  model.shapes.iter(){
+    for shape in  model.tiling.shapes().unwrap(){
         counter+=1;
         if counter>=model.counter{
             break;

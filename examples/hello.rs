@@ -1,4 +1,5 @@
 extern crate hyperbolic;
+use hyperbolic::tiling::Tiling;
 use nannou::prelude::*;
 
 fn main() {
@@ -11,15 +12,11 @@ fn view(app: &App, frame: Frame) {
 
     draw.background().color(WHITE);
 
-    for shape in hyperbolic::init_tile(4, 6) {
-        for i in 0..shape.len() {
-            let a = shape[i];
-            let b = shape[(i + 1) % shape.len()];
-            //hyperbolic::
-            if let Some(geodesic) = hyperbolic::geodesic_passing_by_two_points(a, b){
-                geodesic.draw(&draw);
-            }
-        }
+    let mut tiling = Tiling::new(4, 6, 3);
+    tiling.compute();
+
+    for geodesic in tiling.geodesics().unwrap() {
+        geodesic.draw(&draw);
     }
 
     draw.to_frame(app, &frame).unwrap();
