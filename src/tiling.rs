@@ -1,6 +1,9 @@
 use nannou::prelude::*;
 
-use crate::{Shape, reflect::Reflect, euclidian_distance_from_center_to_vertex, geodesic_passing_by_two_points};
+use crate::{
+    euclidian_distance_from_center_to_vertex, geodesic_passing_by_two_points, reflect::Reflect,
+    Shape,
+};
 
 pub struct Tiling {
     p: u8,
@@ -9,33 +12,41 @@ pub struct Tiling {
     centers: Vec<Point2>,
     geodesics: Vec<Box<dyn Reflect>>,
     shapes: Vec<Shape>,
-    computed: bool
+    computed: bool,
 }
 
 impl Tiling {
-    pub fn new(p: u8,q: u8, max_depth: u8) -> Self {
-        Tiling{p,q,max_depth,centers:vec![Point2::ZERO],geodesics:vec![],shapes:vec![],computed: false}
+    pub fn new(p: u8, q: u8, max_depth: u8) -> Self {
+        Tiling {
+            p,
+            q,
+            max_depth,
+            centers: vec![Point2::ZERO],
+            geodesics: vec![],
+            shapes: vec![],
+            computed: false,
+        }
     }
-    pub fn centers(&self) -> Option<&Vec<Point2>>{
-        match self.centers.as_slice(){
+    pub fn centers(&self) -> Option<&Vec<Point2>> {
+        match self.centers.as_slice() {
             &[v] if v == Point2::ZERO => None,
-            _ => Some(&self.centers)
+            _ => Some(&self.centers),
         }
     }
-    pub fn geodesics(&self) -> Option<&Vec<Box<dyn Reflect>>>{
-        match self.geodesics.as_slice(){
+    pub fn geodesics(&self) -> Option<&Vec<Box<dyn Reflect>>> {
+        match self.geodesics.as_slice() {
             &[] => None,
-            _ => Some(&self.geodesics)
+            _ => Some(&self.geodesics),
         }
     }
-    pub fn shapes(&self) -> Option<&Vec<Shape>>{
-        match self.shapes.as_slice(){
+    pub fn shapes(&self) -> Option<&Vec<Shape>> {
+        match self.shapes.as_slice() {
             &[] => None,
-            _ => Some(&self.shapes)
+            _ => Some(&self.shapes),
         }
     }
     pub fn compute(&mut self) {
-        if self.computed{
+        if self.computed {
             return;
         }
         let radius = euclidian_distance_from_center_to_vertex(self.p, self.q);
@@ -51,17 +62,12 @@ impl Tiling {
         self.tile(&shape, Point2::ZERO, 0);
         self.computed = true;
     }
-    fn tile(
-        &mut self,
-        current_shape: &Shape,
-        current_center: Point2,
-        depth: u8,
-    ) {
+    fn tile(&mut self, current_shape: &Shape, current_center: Point2, depth: u8) {
         if depth < self.max_depth {
             for i in 0..current_shape.len() {
                 let a = current_shape[i];
                 let b = current_shape[(i + 1) % current_shape.len()];
-                if let Some(geodesic) = geodesic_passing_by_two_points(a, b){
+                if let Some(geodesic) = geodesic_passing_by_two_points(a, b) {
                     let next_center = geodesic.reflect(current_center);
                     if !self.centers.contains(&next_center) {
                         self.centers.push(next_center);

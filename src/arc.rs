@@ -1,6 +1,6 @@
-use nannou::prelude::*;
 use crate::circle::Circle;
 use crate::reflect::Reflect;
+use nannou::prelude::*;
 
 fn control_point(point: Point2, reference_point: Point2, center: Point2) -> Point2 {
     let angle = (point - center)
@@ -23,18 +23,18 @@ fn control_point(point: Point2, reference_point: Point2, center: Point2) -> Poin
 }
 
 #[derive(Debug)]
-pub struct Arc{
+pub struct Arc {
     start: Point2,
     end: Point2,
-    circle: Circle
+    circle: Circle,
 }
 
 impl Arc {
     pub fn new(start: Point2, end: Point2, circle: Circle) -> Option<Self> {
-        if start == end{
+        if start == end {
             return None;
         }
-        Some(Arc { start, end,circle })
+        Some(Arc { start, end, circle })
     }
 }
 
@@ -46,8 +46,12 @@ impl Reflect for Arc {
         let mut builder = nannou::geom::path::Builder::new().with_svg();
         builder.move_to(self.start.to_array().into());
         builder.cubic_bezier_to(
-            control_point(self.start, self.end, self.circle.center()).to_array().into(),
-            control_point(self.end, self.start, self.circle.center()).to_array().into(),
+            control_point(self.start, self.end, self.circle.center())
+                .to_array()
+                .into(),
+            control_point(self.end, self.start, self.circle.center())
+                .to_array()
+                .into(),
             self.end.to_array().into(),
         );
         let path = builder.build();
@@ -57,6 +61,5 @@ impl Reflect for Arc {
             .weight(0.005)
             .color(BLACK)
             .events(path.iter());
-    
     }
 }

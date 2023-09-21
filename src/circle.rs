@@ -1,5 +1,5 @@
-use nannou::prelude::*;
 use core::fmt::Debug;
+use nannou::prelude::*;
 
 use crate::reflect::*;
 
@@ -29,7 +29,7 @@ impl Reflect for Circle {
         // La distance entre le centre et un point multipliée par la distance entre le centre et l'inverse du point est égale au carré du rayon. (|OI|*|OA|=r^2)
         // Le centre, le point, et son inverse son colinéaires
         let distance_of_inverted_point = self.radius.pow(2) / point.distance(self.center);
-        if distance_of_inverted_point == self.radius{
+        if distance_of_inverted_point == self.radius {
             return point;
         }
         // On crée un vecteur colinéaire avec le centre, le point et son inverse, puis on le normalise et finalement retourne la distance entre le centre et l'inverse multipliée par le vecteur normal, donc l'inverse.
