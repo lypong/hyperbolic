@@ -27,7 +27,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw().scale(200f32);
 
     // Clear the background to blue.
-    draw.background().color(BLACK);
+    draw.background().color(WHITE);
     let mut counter = 0;
     for shape in  model.shapes.iter(){
         counter+=1;
