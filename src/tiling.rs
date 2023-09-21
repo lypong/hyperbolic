@@ -69,16 +69,14 @@ impl Tiling {
                 let b = current_shape[(i + 1) % current_shape.len()];
                 if let Some(geodesic) = geodesic_passing_by_two_points(a, b) {
                     let next_center = geodesic.reflect(current_center);
-                    if !self.centers.contains(&next_center) {
-                        self.centers.push(next_center);
-                        let mut next_shape = vec![];
-                        for j in 0..current_shape.len() {
-                            let point = current_shape[j];
-                            next_shape.push(geodesic.reflect(point));
-                        }
-                        self.tile(&next_shape, next_center, depth + 1);
-                        self.shapes.push(next_shape);
+                    self.centers.push(next_center);
+                    let mut next_shape = vec![];
+                    for j in 0..current_shape.len() {
+                        let point = current_shape[j];
+                        next_shape.push(geodesic.reflect(point));
                     }
+                    self.tile(&next_shape, next_center, depth + 1);
+                    self.shapes.push(next_shape);
                     self.geodesics.push(geodesic);
                 }
             }
