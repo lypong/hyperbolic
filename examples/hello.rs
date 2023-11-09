@@ -12,7 +12,7 @@ fn view(app: &App, frame: Frame) {
 
     draw.background().color(WHITE);
 
-    let mut tiling = Tiling::new(4, 6, 3);
+    let mut tiling = Tiling::new(4, 6, 8);
     tiling.compute();
 
     for geodesic in tiling.geodesics().unwrap() {
