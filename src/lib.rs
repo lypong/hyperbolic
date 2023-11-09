@@ -18,8 +18,6 @@ fn euclidian_distance_from_center_to_vertex(p: u8, q: u8) -> f32 {
     (((PI / 2f32 - PI / q).tan() - (PI / p).tan())
         / ((PI / 2f32 - PI / q).tan() + (PI / p).tan()))
     .sqrt()
-    /*(((PI / 2f32 - PI / q).tan() - (PI / p).tan()) / ((PI / 2f32 - PI / q).tan() + (PI / p).tan()))
-    .sqrt()*/
 }
 
 pub fn geodesic_passing_by_two_points(
@@ -50,7 +48,7 @@ pub fn geodesic_passing_by_two_points(
         / divisor;
     let center =
         Point2::new(-factor_of_x / 2f32, -factor_of_y / 2f32);
-    let radius = center.distance(u)/*(-1f32 + (factor_of_x / 2f32).pow(2f32) + (factor_of_y / 2f32).pow(2f32)).sqrt()*/;
+    let radius = center.distance(u);
     assert_ne!(radius, f32::NAN);
     if radius > 10f32 {
         return if let Some(line) = Line::new(u, v) {
