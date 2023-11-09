@@ -15,7 +15,8 @@ pub type Shape = Vec<Point2>;
 // Retourne le rayon du cercle sur lequel on va disposer notre
 // polygone initial. Le pavage est induit par cette valeur.
 fn euclidian_distance_from_center_to_vertex(p: u8, q: u8) -> f32 {
-    // La formule provient de http://www.malinc.se/noneuclidean/en/poincaretiling.php
+    // La formule provient de :
+    //http://www.malinc.se/noneuclidean/en/poincaretiling.php
     let q: f32 = q.into();
     let p: f32 = p.into();
     (((PI / 2f32 - PI / q).tan() - (PI / p).tan())
