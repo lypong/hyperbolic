@@ -11,6 +11,7 @@ pub struct Circle {
 
 impl Circle {
     pub fn new(center: Point2, radius: f32) -> Option<Self> {
+        // Si le rayon est négatif, on ne retourne pas de cercle.
         if radius < 0f32 {
             return None;
         }
@@ -25,10 +26,11 @@ impl Circle {
 }
 
 impl Reflect for Circle {
+    // Retourne l'inverse du point en paramètre
     fn reflect(&self, point: Point2) -> Point2 {
         // La distance entre le centre et un point multipliée par la
         // distance entre le centre et l'inverse du point est égale au
-        // carré du rayon. (|OI|*|OA|=r^2) Le centre, le
+        // carré du rayon. (|OI|*|OA|=r*r) Le centre, le
         // point, et son inverse son colinéaires
         let distance_of_inverted_point =
             self.radius.pow(2) / point.distance(self.center);

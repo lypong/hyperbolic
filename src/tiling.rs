@@ -28,30 +28,41 @@ impl Tiling {
         }
     }
     pub fn centers(&self) -> Option<&Vec<Point2>> {
+        // Si le tableau est possède sa valeur d'initialisation
+        // ([Point2::Zero]), on ne retourne rien.
         match self.centers.as_slice() {
             &[v] if v == Point2::ZERO => None,
             _ => Some(&self.centers),
         }
     }
     pub fn geodesics(&self) -> Option<&Vec<Box<dyn Reflect>>> {
+        // Si le tableau est vide, on ne retourne rien.
         match self.geodesics.as_slice() {
             &[] => None,
             _ => Some(&self.geodesics),
         }
     }
     pub fn shapes(&self) -> Option<&Vec<Shape>> {
+        // Si le tableau est vide, on ne retourne rien.
         match self.shapes.as_slice() {
             &[] => None,
             _ => Some(&self.shapes),
         }
     }
+    // Calcule les polygones,géodésiques et points du pavage. Cette
+    // fonction permet de ne pas faire de calculs inutiles durant
+    // l'initialisation du pavage.
     pub fn compute(&mut self) {
+        // Si le pavage a déjà été calculé on ne le recalcule pas.
         if self.computed {
             return;
         }
+        // On crée notre polygone initial.
+        let mut shape = vec![];
         let radius =
             euclidian_distance_from_center_to_vertex(self.p, self.q);
-        let mut shape = vec![];
+        // On calcule un nombre p de points, uniformément répartis sur
+        // notre cercle de centre (0;0), grâce à de la trigonomètrie.
         let mut angle = 0f32;
         let p_as_f32: f32 = self.p.into();
         for _ in 0..self.p {
@@ -63,22 +74,33 @@ impl Tiling {
         }
         self.shapes.push(shape.clone());
 
+        // On commence à paver
         self.tile(&shape, Point2::ZERO, 0);
         self.computed = true;
     }
+    // Fonction récursive responsable de calculer les
+    // "sous-polygones".
     fn tile(
         &mut self,
         current_shape: &Shape,
         current_center: Point2,
         depth: u8,
     ) {
+        // Si la profondeur atteint la profondeur maximale, on arrête.
         if depth < self.max_depth {
             for i in 0..current_shape.len() {
+                // On prend chaque point du polygone par paire a,b.
                 let a = current_shape[i];
                 let b = current_shape[(i + 1) % current_shape.len()];
+                // On calcule la géodésique passant par les deux
+                // points. Si une valeur est retournée, on reflète
+                // notre forme actuelle dans la géodésique.
                 if let Some(geodesic) =
                     geodesic_passing_by_two_points(a, b)
                 {
+                    // On reflète chaque point de notre forme actuelle
+                    // dans la géodésique pour composer notre nouvelle
+                    // forme.
                     let next_center =
                         geodesic.reflect(current_center);
                     self.centers.push(next_center);
@@ -87,6 +109,9 @@ impl Tiling {
                         let point = current_shape[j];
                         next_shape.push(geodesic.reflect(point));
                     }
+                    // On appelle à nouveau avec notre polygone qui
+                    // vient d'être calculé, la fonction tile en
+                    // augmentant sa profondeur.
                     self.tile(&next_shape, next_center, depth + 1);
                     self.shapes.push(next_shape);
                     self.geodesics.push(geodesic);
