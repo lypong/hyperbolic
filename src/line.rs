@@ -22,8 +22,12 @@ impl Line {
             direction,
         })
     }
-    pub fn orthogonal_line_passing_by_point(&self, point: Point2) -> Self {
-        let orthogonal_direction = Vec2::new(-self.direction.y, self.direction.x);
+    pub fn orthogonal_line_passing_by_point(
+        &self,
+        point: Point2,
+    ) -> Self {
+        let orthogonal_direction =
+            Vec2::new(-self.direction.y, self.direction.x);
         Line {
             start: point,
             end: point + orthogonal_direction,
@@ -31,9 +35,11 @@ impl Line {
         }
     }
     pub fn intersect(&self, line: Self) -> Option<Point2> {
-        let factor = (line.direction.x * (self.start.y - line.start.y)
+        let factor = (line.direction.x
+            * (self.start.y - line.start.y)
             + line.direction.y * (line.start.x - self.start.x))
-            / (line.direction.y * self.direction.x - line.direction.x * self.direction.y);
+            / (line.direction.y * self.direction.x
+                - line.direction.x * self.direction.y);
         if !factor.is_finite() {
             return None;
         }
@@ -52,7 +58,10 @@ impl Reflect for Line {
     fn reflect(&self, point: Point2) -> Point2 {
         let projection = self.projection(point);
         let direction = projection - point;
-        Point2::new(point.x + direction.x * 2f32, point.y + direction.y * 2f32)
+        Point2::new(
+            point.x + direction.x * 2f32,
+            point.y + direction.y * 2f32,
+        )
     }
     fn draw(&self, draw: &Draw) {
         draw.line()

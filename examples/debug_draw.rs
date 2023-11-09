@@ -3,13 +3,11 @@ use hyperbolic::tiling::Tiling;
 use nannou::prelude::*;
 
 macro_rules! slow_down {
-    ($x:expr) => {
-        {
-            if $x.elapsed_frames() % 10 != 0 {
-                return;
-            }
+    ($x:expr) => {{
+        if $x.elapsed_frames() % 10 != 0 {
+            return;
         }
-    };
+    }};
 }
 
 fn main() {
@@ -38,7 +36,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     // Clear the background to blue.
     draw.background().color(WHITE);
-    for (i,geodesic) in model.tiling.geodesics().unwrap().iter().enumerate() {
+    for (i, geodesic) in
+        model.tiling.geodesics().unwrap().iter().enumerate()
+    {
         if i >= model.counter.into() {
             break;
         }

@@ -1,8 +1,8 @@
 use nannou::prelude::*;
 
 use crate::{
-    euclidian_distance_from_center_to_vertex, geodesic_passing_by_two_points, reflect::Reflect,
-    Shape,
+    euclidian_distance_from_center_to_vertex,
+    geodesic_passing_by_two_points, reflect::Reflect, Shape,
 };
 
 pub struct Tiling {
@@ -49,12 +49,16 @@ impl Tiling {
         if self.computed {
             return;
         }
-        let radius = euclidian_distance_from_center_to_vertex(self.p, self.q);
+        let radius =
+            euclidian_distance_from_center_to_vertex(self.p, self.q);
         let mut shape = vec![];
         let mut angle = 0f32;
         let p_as_f32: f32 = self.p.into();
         for _ in 0..self.p {
-            shape.push(Point2::new(angle.cos() * radius, angle.sin() * radius));
+            shape.push(Point2::new(
+                angle.cos() * radius,
+                angle.sin() * radius,
+            ));
             angle += 2f32 * PI / p_as_f32;
         }
         self.shapes.push(shape.clone());
@@ -62,13 +66,21 @@ impl Tiling {
         self.tile(&shape, Point2::ZERO, 0);
         self.computed = true;
     }
-    fn tile(&mut self, current_shape: &Shape, current_center: Point2, depth: u8) {
+    fn tile(
+        &mut self,
+        current_shape: &Shape,
+        current_center: Point2,
+        depth: u8,
+    ) {
         if depth < self.max_depth {
             for i in 0..current_shape.len() {
                 let a = current_shape[i];
                 let b = current_shape[(i + 1) % current_shape.len()];
-                if let Some(geodesic) = geodesic_passing_by_two_points(a, b) {
-                    let next_center = geodesic.reflect(current_center);
+                if let Some(geodesic) =
+                    geodesic_passing_by_two_points(a, b)
+                {
+                    let next_center =
+                        geodesic.reflect(current_center);
                     self.centers.push(next_center);
                     let mut next_shape = vec![];
                     for j in 0..current_shape.len() {
