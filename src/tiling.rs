@@ -57,6 +57,14 @@ impl Tiling {
         if self.computed {
             return;
         }
+        // On réinitialise nos variables.
+        self.centers = vec![Point2::ZERO];
+        self.geodesics = vec![];
+        self.shapes = vec![];
+        self.computed = true;
+        if !self.is_tilable(){
+            return;
+        }
         // On crée notre polygone initial.
         let mut shape = vec![];
         let radius =
@@ -117,6 +125,37 @@ impl Tiling {
                     self.geodesics.push(geodesic);
                 }
             }
+        }
+    }
+    // Vérifie si l'on peut paver avec nos valeur de p et q
+    pub fn is_tilable(&self) -> bool{
+        ((self.p as i16)-2)*((self.q as i16)-2)>4
+    }
+    pub fn p(&self) -> u8{
+        self.p
+    }
+    pub fn q(&self) -> u8{
+        self.q
+    }
+    pub fn max_depth(&self) -> u8{
+        self.max_depth
+    }
+    pub fn set_p(&mut self,p: u8){
+        if self.p != p{
+            self.p = p;
+            self.computed = false;
+        }
+    }
+    pub fn set_q(&mut self,q: u8){
+        if self.q != q{
+            self.q = q;
+            self.computed = false;
+        }
+    }
+    pub fn set_max_depth(&mut self,max_depth: u8){
+        if self.max_depth != max_depth{
+            self.max_depth = max_depth;
+            self.computed = false;
         }
     }
 }
