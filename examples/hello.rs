@@ -5,7 +5,10 @@ use nannou_egui::*;
 
 const MAX_P : u8 = 8;
 const MAX_Q : u8 = 8;
-const MAX_DEPTH : u8 = 5;
+const P3_MAX_DEPTH : u8 = 8;
+const P4_5_6_MAX_DEPTH : u8 = 5;
+const P7_8_MAX_DEPTH : u8 = 4;
+const DEFAULT_MAX_DEPTH : u8 = 3;
 const POINCARE_RADIUS : u8 = 1;
 
 fn main() {
@@ -42,8 +45,15 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     egui::Window::new("Paramètres").show(&ctx, |ui| {
         changed |= ui.add(egui::Slider::new(&mut model.settings.p, 3..=MAX_P).text("p")).changed();
         changed |= ui.add(egui::Slider::new(&mut model.settings.q, 3..=MAX_Q).text("q")).changed();
-        //model.settings.max_depth = model.settings.max_depth.clamp(1, max_permitted);
-        changed |= ui.add(egui::Slider::new(&mut model.settings.max_depth, 1..=MAX_DEPTH).text("Profondeur maximale")).changed();
+        // Permets une valeur de profondeur de récursion raisonnable et adaptée à p, afin d'éviter les ralentissements.
+        let max_depth_permitted = match model.settings.p {
+            3 => P3_MAX_DEPTH,
+            4|5|6 => P4_5_6_MAX_DEPTH,
+            7|8 => P7_8_MAX_DEPTH,
+            _ => DEFAULT_MAX_DEPTH,
+        };
+        model.settings.max_depth = model.settings.max_depth.clamp(1, max_depth_permitted);
+        changed |= ui.add(egui::Slider::new(&mut model.settings.max_depth, 1..=max_depth_permitted).text("Profondeur maximale")).changed();
     });
     model.tiling.set_max_depth(model.settings.max_depth);
     // Si on a bougé un curseur on redéfinit nos variables
