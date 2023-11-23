@@ -5,8 +5,9 @@ use nannou_egui::*;
 
 const MAX_P : u8 = 8;
 const MAX_Q : u8 = 8;
-const P3_MAX_DEPTH : u8 = 8;
-const P4_5_6_MAX_DEPTH : u8 = 5;
+const P3_MAX_DEPTH : u8 = 10;
+const P4_MAX_DEPTH : u8 = 7;
+const P5_6_MAX_DEPTH : u8 = 6;
 const P7_8_MAX_DEPTH : u8 = 4;
 const DEFAULT_MAX_DEPTH : u8 = 3;
 const POINCARE_RADIUS : u8 = 1;
@@ -48,7 +49,8 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         // Permets une valeur de profondeur de récursion raisonnable et adaptée à p, afin d'éviter les ralentissements.
         let max_depth_permitted = match model.settings.p {
             3 => P3_MAX_DEPTH,
-            4|5|6 => P4_5_6_MAX_DEPTH,
+            4 => P4_MAX_DEPTH,
+            5|6 => P5_6_MAX_DEPTH,
             7|8 => P7_8_MAX_DEPTH,
             _ => DEFAULT_MAX_DEPTH,
         };
