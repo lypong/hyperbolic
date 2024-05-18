@@ -1,4 +1,7 @@
 ### Librairie permettant le calcul de pavages hyperboliques, écrite en Rust avec l'aide du toolkit Nannou, dans le cadre de notre travail de maturité.
+<img src="illustrations/N3K7_CROP.png" alt="Pavage N3K7" width="400"/>
+<img src="illustrations/N5K6_CROP.png" alt="Pavage N5K6" width="400"/>
+
 ## Compiler et exécuter les exemples
 Dans le dossier [examples/](examples/) vous trouverez le code de programmes utilisant notre librairie. Afin d'exécuter un programme d'exemple, il faudra entrer les commandes suivantes dans un terminal en veillant à remplacer par les valeurs appropriées. L'exemple d'application aboutie a pour nom "hello"
 ```sh
